@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Database
+database/chroma_db/
+
+# Environment
+.env
+.env.local
+
+# Data files
+data/*.pdf
+data/*.txt
+!data/README.md
+
+# Frontend
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# Cache
+.cache/
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
