@@ -33,7 +33,8 @@ class Settings:
         
         # API Configuration
         self.api_host = os.getenv("API_HOST", "0.0.0.0")
-        self.api_port = int(os.getenv("API_PORT", "8000"))
+        # Render uses PORT, fallback to API_PORT for local development
+        self.api_port = int(os.getenv("PORT", os.getenv("API_PORT", "8000")))
         self.api_workers = int(os.getenv("API_WORKERS", "4"))
         
         # Feature Flags
