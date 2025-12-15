@@ -344,10 +344,19 @@ async def get_analytics():
 
 # Main entry point
 if __name__ == "__main__":
+    import os
+    
+    # Production settings for deployment
+    is_production = os.getenv("RENDER") or os.getenv("RAILWAY_ENVIRONMENT")
+    
+    logger.info(f"Starting server on {settings.api_host}:{settings.api_port}")
+    logger.info(f"Production mode: {bool(is_production)}")
+    
     uvicorn.run(
-        "api.main:app",
+        app,  # Pass app object directly for production
         host=settings.api_host,
         port=settings.api_port,
-        reload=True,
-        workers=1  # Use 1 for development, settings.api_workers for production
+        reload=False if is_production else True,
+        workers=1,
+        log_level="info"
     )

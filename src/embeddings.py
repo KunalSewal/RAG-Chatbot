@@ -15,8 +15,11 @@ class EmbeddingManager:
         # Initialize local embedding model (no API calls, completely free!)
         logger.info(f"Loading local embedding model: {settings.embedding_model}")
         model_name = settings.embedding_model.split('/')[-1]  # Extract model name
-        self.embedding_model = SentenceTransformer(model_name)
-        logger.info("Local embedding model loaded successfully")
+        # Force CPU for cloud deployment (no CUDA)
+        import torch
+        device = 'cpu'  # Always use CPU on Render/Railway
+        self.embedding_model = SentenceTransformer(model_name, device=device)
+        logger.info(f"Local embedding model loaded successfully on {device}")
         
         # Initialize ChromaDB
         self.chroma_client = chromadb.PersistentClient(
