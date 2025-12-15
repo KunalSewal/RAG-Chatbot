@@ -1,35 +1,50 @@
-# RAG-Powered Document Q&A System
+# RAG Document Chatbot
 
-A production-grade Retrieval-Augmented Generation (RAG) chatbot that enables intelligent document querying with semantic search and citation support. Built with Amazon Nova 2 Lite reasoning capabilities, GPU-accelerated local embeddings, and a modern React frontend.
+A full-stack Retrieval-Augmented Generation (RAG) system that enables intelligent document-based question answering with conversation memory and semantic search. Built with FastAPI, Next.js 14, and Amazon Nova 2 Lite reasoning model.
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14.0+-black.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ---
 
-## 🌟 Features
+## 🌟 Key Features
 
-### Core Capabilities
-- **🧠 Advanced Reasoning**: Amazon Nova 2 Lite with chain-of-thought reasoning for complex queries
-- **📄 Document Processing**: Upload and process PDF, TXT, and DOCX files
-- **🔍 Semantic Search**: GPU-accelerated vector embeddings for accurate document retrieval
-- **💬 Multi-Chat Management**: Separate conversation threads with per-chat document isolation
-- **📚 Source Citations**: Every answer includes verifiable document sources with previews
-- **🎨 Modern UI**: Responsive dark-themed interface with smooth animations
-- **⚡ Real-time Responses**: Fast query processing with typing indicators
-- **📋 Copy Functionality**: One-click copy for AI responses
-- **🔄 Chat History**: Persistent conversation history with auto-generated titles
+### Dual-Mode Chat System
+- **General Chat Mode**: Standard AI conversation without documents
+- **RAG Mode**: Context-aware responses using uploaded documents as knowledge base
+- Automatic mode switching based on document availability
 
-### Technical Features
+### Advanced Conversation Management
+- **Multi-Chat Sessions**: Create unlimited independent chat threads
+- **Per-Chat Document Isolation**: Each chat maintains its own document context
+- **Auto-Generated Titles**: Chat names generated from first user message
+- **Chat History Sidebar**: Quick navigation between all conversation threads
+- **Document Badges**: Visual indicators showing which documents are active per message
+
+### Document Processing & Search
+- **PDF Support**: Upload and process PDF documents
+- **Semantic Search**: SentenceTransformers embeddings (384-dimensional vectors)
 - **Vector Database**: ChromaDB for efficient similarity search
-- **Local Embeddings**: SentenceTransformers (all-MiniLM-L6-v2) with CUDA acceleration
-- **RESTful API**: FastAPI backend with automatic OpenAPI documentation
-- **Type Safety**: Full TypeScript implementation for frontend
-- **Markdown Support**: Rich text rendering with syntax highlighting for code blocks
-- **Responsive Design**: Mobile-friendly layout with collapsible sidebar
+- **Chunking**: Intelligent text splitting (1000 chars, 200 overlap)
+- **Source Citations**: Every RAG answer includes document sources
+
+### Modern UI/UX
+- **Dark Theme**: Professional dark mode interface with gradient backgrounds
+- **Responsive Design**: Mobile-friendly layout
+- **Smooth Animations**: Framer Motion for polished interactions
+- **Markdown Rendering**: Full markdown support with syntax-highlighted code blocks
+- **Copy to Clipboard**: One-click copy for AI responses
+- **Real-time Feedback**: Loading states and typing indicators
+
+### AI & Reasoning
+- **Amazon Nova 2 Lite**: Free-tier reasoning model via OpenRouter
+- **Reasoning Mode**: Chain-of-thought processing for complex queries (auto-enabled for Nova models)
+- **Fallback Model**: Llama 3.2 3B for reliability
+- **Conversation Memory**: In-memory context retention (last 5 turns)
 
 ---
 
@@ -37,100 +52,171 @@ A production-grade Retrieval-Augmented Generation (RAG) chatbot that enables int
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Next.js)                    │
-│  ┌────────────┐  ┌─────────────┐  ┌──────────────────┐     │
-│  │ Chat UI    │  │ Chat History│  │ Document Upload  │     │
-│  └────────────┘  └─────────────┘  └──────────────────┘     │
-└────────────────────────────┬────────────────────────────────┘
-                             │ HTTP/REST
-                             ▼
+│                    Next.js 14 Frontend                       │
+│  React 18 • TypeScript • Tailwind CSS • Framer Motion      │
+│                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
+│  │ Chat History │  │  Chat Canvas │  │ Document Upload │  │
+│  │   Sidebar    │  │  (Messages)  │  │    & Badges     │  │
+│  └──────────────┘  └──────────────┘  └─────────────────┘  │
+└────────────────────────┬─────────────────────────────────────┘
+                         │ REST API (Axios)
+                         ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                      Backend (FastAPI)                       │
-│  ┌────────────┐  ┌─────────────┐  ┌──────────────────┐     │
-│  │ RAG Pipeline│  │ LLM Wrapper │  │ Document Ingest │     │
-│  └────────────┘  └─────────────┘  └──────────────────┘     │
-└───┬──────────────────┬──────────────────┬───────────────────┘
-    │                  │                  │
-    ▼                  ▼                  ▼
-┌──────────┐    ┌──────────────┐   ┌─────────────────┐
-│ ChromaDB │    │  OpenRouter  │   │ Local Embedder  │
-│ (Vector) │    │   (Nova AI)  │   │ (GPU-Enhanced)  │
-└──────────┘    └──────────────┘   └─────────────────┘
+│                   FastAPI Backend (Python)                   │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐│
+│  │              RAG Pipeline Orchestrator                  ││
+│  └────────────────────────────────────────────────────────┘│
+│                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
+│  │   Document   │  │  Embedding   │  │   LLM Wrapper   │  │
+│  │   Ingester   │  │   Manager    │  │  (OpenRouter)   │  │
+│  └──────────────┘  └──────────────┘  └─────────────────┘  │
+│                                                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐  │
+│  │    Memory    │  │ Preprocessor │  │  Error Handler  │  │
+│  │  (In-Memory) │  │  (Chunking)  │  │   & Logging     │  │
+│  └──────────────┘  └──────────────┘  └─────────────────┘  │
+└───────┬──────────────────┬──────────────────┬──────────────┘
+        │                  │                  │
+        ▼                  ▼                  ▼
+┌──────────────┐  ┌──────────────────┐  ┌──────────────────┐
+│   ChromaDB   │  │    OpenRouter    │  │ SentenceTransf.  │
+│  (Vectors)   │  │  Amazon Nova 2   │  │   all-MiniLM-    │
+│  Persistent  │  │ Lite (Reasoning) │  │   L6-v2 (CPU)    │
+└──────────────┘  └──────────────────┘  └──────────────────┘
 ```
 
-### Data Flow
-1. **Document Upload** → Text Extraction → Chunking (1000 chars) → Embedding (384-dim) → ChromaDB Storage
-2. **User Query** → Query Embedding → Vector Search (Top-K) → Context Retrieval → LLM Generation → Response
+### Request Flow
+
+**Document Upload**:
+1. Frontend uploads PDF → Backend `/documents/upload`
+2. PyPDF2 extracts text → RecursiveCharacterTextSplitter chunks (1000/200)
+3. SentenceTransformer creates 384-dim embeddings (lazy-loaded)
+4. ChromaDB stores vectors + metadata
+5. Documents linked to current chat session
+
+**Query Processing**:
+1. User sends question → Backend `/query`
+2. Query embedded → ChromaDB similarity search (top-k=5)
+3. Retrieved docs + conversation history → OpenRouter API
+4. Amazon Nova 2 Lite generates response (reasoning enabled)
+5. Response + sources returned to frontend
+6. Message stored in conversation memory
 
 ---
 
 ## 🛠️ Technology Stack
 
 ### Backend
-- **Framework**: FastAPI 0.104+
-- **LLM**: Amazon Nova 2 Lite (via OpenRouter)
-- **Embeddings**: SentenceTransformers (all-MiniLM-L6-v2)
-- **Vector DB**: ChromaDB
-- **Document Processing**: PyPDF2, python-docx
-- **GPU Acceleration**: CUDA (PyTorch)
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **API Framework** | FastAPI 0.104+ | REST API with automatic OpenAPI docs |
+| **LLM** | Amazon Nova 2 Lite | Free reasoning model (OpenRouter) |
+| **Embeddings** | SentenceTransformers | Local 384-dim vectors (CPU) |
+| **Vector DB** | ChromaDB | Persistent vector storage |
+| **Document Processing** | PyPDF2, langchain-text-splitters | PDF extraction & chunking |
+| **Memory** | In-memory dict | Conversation history (ephemeral) |
+| **Logging** | Python logging | Structured logging to file/console |
 
 ### Frontend
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript 5.3+
-- **UI Library**: React 18
-- **Styling**: Tailwind CSS 3.4
-- **Animations**: Framer Motion 10.16
-- **HTTP Client**: Axios 1.6
-- **Markdown**: react-markdown + react-syntax-highlighter
-- **Icons**: Lucide React
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Framework** | Next.js 14 | React with App Router |
+| **Language** | TypeScript 5.3+ | Type safety |
+| **Styling** | Tailwind CSS 3.4 | Utility-first CSS |
+| **Animations** | Framer Motion 10.16 | Smooth UI transitions |
+| **HTTP** | Axios 1.6 | API requests |
+| **Markdown** | react-markdown | Response rendering |
+| **Code Highlighting** | react-syntax-highlighter | Code block styling |
+| **Icons** | Lucide React | UI icons |
 
 ### Infrastructure
-- **Database**: ChromaDB (Vector) + SQLite (Metadata)
-- **API Protocol**: REST (OpenAPI 3.0)
-- **CORS**: Enabled for localhost development
+| Component | Technology | Notes |
+|-----------|-----------|-------|
+| **Containerization** | Docker & Docker Compose | Multi-stage builds |
+| **Database** | ChromaDB (vector) + SQLite | Persistent storage |
+| **API Protocol** | REST (OpenAPI 3.0) | Automatic docs at `/docs` |
+| **CORS** | Wildcard (development) | Restricted in production |
 
 ---
 
 ## 📦 Installation
 
 ### Prerequisites
-- Python 3.9+
-- Node.js 18+
-- CUDA-capable GPU (optional, for faster embeddings)
-- OpenRouter API Key
+- **Python 3.11+**
+- **Node.js 18+**
+- **Docker** (optional, for containerized deployment)
+- **OpenRouter API Key** (free tier available)
 
-### 1. Clone Repository
+### Quick Start (Docker - Recommended)
+
+1. **Clone repository**:
 ```bash
-git clone <repository-url>
-cd doc-chatbot
+git clone https://github.com/KunalSewal/RAG-Chatbot.git
+cd RAG-Chatbot
 ```
 
-### 2. Backend Setup
+2. **Configure environment**:
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment variables
 cp .env.example .env
 # Edit .env and add your OPENROUTER_API_KEY
 ```
 
-### 3. Frontend Setup
+3. **Start with Docker Compose**:
 ```bash
-cd frontend
-npm install
+docker-compose up -d
 ```
 
-### 4. Environment Configuration
+4. **Access application**:
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
+
+### Local Development Setup
+
+#### Backend Setup
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your OpenRouter API key
+
+# Run backend
+python api/main.py
+```
+Backend runs on: http://localhost:8000
+
+#### Frontend Setup
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+Frontend runs on: http://localhost:3000
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+
 Create a `.env` file in the project root:
 
 ```env
 # OpenRouter Configuration
-OPENROUTER_API_KEY=your-api-key-here
+OPENROUTER_API_KEY=sk-or-v1-your-api-key-here
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # Model Configuration
@@ -154,112 +240,112 @@ LOG_LEVEL=INFO
 LOG_FILE=./logs/app.log
 ```
 
----
-
-## 🚀 Usage
-
-### Option 1: Docker (Recommended)
-
-**Requirements**: Docker and Docker Compose installed
-
-```bash
-# Start both frontend and backend
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-- Frontend: `http://localhost:3000`
-- Backend: `http://localhost:8000`
-- API Docs: `http://localhost:8000/docs`
-
-### Option 2: Local Development
-
-**Terminal 1 - Backend**:
-```bash
-cd doc-chatbot
-python api/main.py
-```
-Backend runs on: `http://localhost:8000`
-
-**Terminal 2 - Frontend**:
-```bash
-cd doc-chatbot/frontend
-npm run dev
-```
-Frontend runs on: `http://localhost:3000`
-
-### API Documentation
-Once the backend is running, visit:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+### Getting OpenRouter API Key
+1. Visit https://openrouter.ai
+2. Sign up for free account
+3. Navigate to "Keys" section
+4. Generate new API key
+5. Copy key to `.env` file
 
 ---
 
-## 📖 How It Works
+## 🚀 Usage Guide
 
-### 1. Document Upload
-- Upload PDF, TXT, or DOCX files via the 📎 button
-- Documents are automatically processed:
-  - Text extraction
-  - Chunked into 1000-character segments (200-char overlap)
-  - Each chunk embedded into 384-dimensional vectors
-  - Stored in ChromaDB with metadata
-- Documents are scoped to the current chat session
+### Starting a New Chat
+1. Click "**+ New Chat**" in sidebar
+2. New chat session created with empty document context
 
-### 2. Querying Documents
-- Type a question in the chat input
-- System workflow:
-  1. Question is embedded using the same model
-  2. ChromaDB performs cosine similarity search
-  3. Top 3 most relevant chunks retrieved
-  4. Chunks sent as context to Amazon Nova 2 Lite
-  5. Nova generates answer using reasoning mode
-  6. Response displayed with source citations
+### Uploading Documents
+1. Click **📎 paperclip icon** next to message input
+2. Select PDF file(s)
+3. Documents are processed and added to **current chat only**
+4. Document badges appear on messages to show available context
 
-### 3. Chat Management
-- Click **"New Chat"** to create separate conversation threads
-- Each chat maintains its own document collection
-- Switch between chats via the sidebar
-- Documents uploaded in one chat don't affect others
+### Asking Questions
+
+**General Chat Mode** (no documents):
+```
+User: What is machine learning?
+AI: [Provides general answer without document context]
+```
+
+**RAG Mode** (with documents):
+```
+User: [Upload research paper]
+User: What are the key findings?
+AI: [Answers based on uploaded document with source citations]
+```
+
+### Managing Chats
+- **Switch chats**: Click any chat in sidebar
+- **Delete chat**: Hover over chat → click trash icon
+- **View chat info**: See message count and document count per chat
+
+### Copy Responses
+- Click **📋 copy icon** on any AI message
+- Checkmark appears to confirm copy
 
 ---
 
-## 📡 API Endpoints
+## 📚 API Documentation
 
-### Health Check
+### Core Endpoints
+
+#### Health Check
 ```http
 GET /health
 ```
-Returns system status and model information.
+Returns API status and model information.
 
-### Upload Documents
+**Response**:
+```json
+{
+  "status": "healthy",
+  "version": "2.0.0",
+  "models": {
+    "llm": "amazon/nova-2-lite-v1:free",
+    "embedding": "sentence-transformers/all-MiniLM-L6-v2"
+  }
+}
+```
+
+#### Upload Documents
 ```http
 POST /documents/upload
 Content-Type: multipart/form-data
+```
+Upload PDF documents to the knowledge base.
 
+**Request**:
+```bash
+curl -X POST http://localhost:8000/documents/upload \
+  -F "files=@document.pdf"
+```
+
+**Response**:
+```json
 {
-  "files": [File, File, ...]
+  "message": "Documents processed successfully",
+  "files_processed": 1,
+  "chunks_created": 10
 }
 ```
-Uploads and processes documents into the knowledge base.
 
-### Query
+#### Query (Non-Streaming)
 ```http
 POST /query
 Content-Type: application/json
+```
+Ask a question and get a complete response.
 
+**Request**:
+```json
 {
-  "question": "What are the requirements?",
-  "conversation_id": "optional-chat-id",
-  "top_k": 3
+  "question": "What are the main findings?",
+  "conversation_id": "optional-uuid",
+  "top_k": 5
 }
 ```
-Sends a query and receives an answer with sources.
 
 **Response**:
 ```json
@@ -268,270 +354,366 @@ Sends a query and receives an answer with sources.
   "sources": [
     {
       "source": "document.pdf",
-      "content_preview": "...",
-      "score": 0.85
+      "content_preview": "First 200 chars of relevant chunk..."
     }
   ],
-  "conversation_id": "chat-id"
+  "conversation_id": "uuid"
 }
 ```
 
----
-
-## 📁 Project Structure
-
+#### Query (Streaming)
+```http
+POST /query/stream
+Content-Type: application/json
 ```
-doc-chatbot/
-├── api/
-│   └── main.py                 # FastAPI application entry point
-├── src/
-│   ├── __init__.py
-│   ├── rag_pipeline.py         # RAG orchestration
-│   ├── llm.py                  # LLM wrapper (Nova integration)
-│   ├── embeddings.py           # Local embedding model
-│   ├── ingest.py               # Document processing
-│   ├── preprocess.py           # Text chunking
-│   ├── memory.py               # Conversation history
-│   ├── logging_utils.py        # Logging configuration
-│   └── error_handling.py       # Custom exceptions
-├── config/
-│   └── settings.py             # Configuration management
-├── frontend/
-│   ├── app/
-│   │   ├── layout.tsx          # Root layout
-│   │   ├── page.tsx            # Main chat interface
-│   │   └── globals.css         # Global styles
-│   ├── public/                 # Static assets
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── tailwind.config.js
-│   └── next.config.js
-├── database/
-│   ├── chroma_db/              # Vector database storage
-│   └── schema.sql              # Database schema
-├── data/                       # Uploaded documents
-├── logs/                       # Application logs
-├── requirements.txt            # Python dependencies
-├── .env                        # Environment variables
-└── README.md                   # This file
+Stream response tokens in real-time.
+
+#### WebSocket Chat
 ```
-
----
-
-## 🧪 Key Components
-
-### RAG Pipeline (`src/rag_pipeline.py`)
-- Orchestrates the entire query flow
-- Manages document retrieval and LLM generation
-- Handles conversation context and memory
-
-### LLM Wrapper (`src/llm.py`)
-- Interfaces with OpenRouter API
-- Implements Amazon Nova 2 Lite with reasoning mode
-- Includes fallback model support (Llama 3.2 3B)
-- Automatically enables chain-of-thought reasoning
-
-### Embeddings (`src/embeddings.py`)
-- Local SentenceTransformer model
-- GPU-accelerated when CUDA is available
-- Generates 384-dimensional dense vectors
-- Consistent embedding for queries and documents
-
-### Document Ingestion (`src/ingest.py`)
-- Multi-format support (PDF, TXT, DOCX)
-- Text extraction and cleaning
-- Metadata preservation (filename, page numbers)
-
----
-
-## 🎨 Frontend Features
-
-### Chat Interface
-- Real-time message streaming
-- Markdown rendering with code syntax highlighting
-- Copy-to-clipboard functionality
-- Document badge display above user messages
-- Source citation cards with document previews
-
-### Chat History Sidebar
-- List of all conversation threads
-- Auto-generated titles from first message
-- Document count indicators
-- Click to switch between chats
-- Delete chat functionality
-
-### Document Management
-- Drag-and-drop file upload (via 📎 button)
-- Upload progress indicator
-- Per-chat document isolation
-- Visual document badges in chat
-
----
-
-## ⚙️ Configuration Options
-
-### Chunk Size & Overlap
-Adjust in `.env`:
-```env
-CHUNK_SIZE=1000        # Characters per chunk
-CHUNK_OVERLAP=200      # Overlap between chunks
+WS /ws/chat
 ```
+Real-time bidirectional chat (not currently used by frontend).
 
-### Model Selection
-```env
-LLM_MODEL=amazon/nova-2-lite-v1:free              # Primary model
-LLM_FALLBACK_MODEL=meta-llama/llama-3.2-3b-instruct:free  # Backup
+#### Conversation Management
+```http
+POST /conversations/new
+GET /conversations/{conversation_id}/history
 ```
+Create and retrieve conversation history.
 
-### Retrieval Settings
-Modify `top_k` in query requests to return more/fewer context chunks.
+#### Clear Knowledge Base
+```http
+DELETE /documents/clear
+```
+Remove all documents from ChromaDB.
+
+### Interactive API Docs
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
 ---
 
-## � Docker Deployment
+## 🐳 Docker Deployment
 
-### Local Deployment with Docker
+### Architecture
+- **Multi-stage builds** for optimized image sizes
+- **Volume mounts** for persistent data (database, logs)
+- **Health checks** for backend monitoring
+- **Service orchestration** via docker-compose
+
+### Docker Commands
+
+**Start services**:
 ```bash
-# Build and start containers
 docker-compose up -d
+```
 
-# View logs
+**View logs**:
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
 docker-compose logs -f backend
 docker-compose logs -f frontend
-
-# Stop and remove containers
-docker-compose down
-
-# Rebuild after code changes
-docker-compose up -d --build
 ```
 
-### Individual Container Commands
+**Stop services**:
 ```bash
-# Backend only
-docker build -t rag-backend .
-docker run -p 8000:8000 --env-file .env rag-backend
-
-# Frontend only
-docker build -t rag-frontend -f frontend/Dockerfile .
-docker run -p 3000:3000 rag-frontend
+docker-compose down
 ```
+
+**Rebuild after code changes**:
+```bash
+docker-compose up --build -d
+```
+
+**Check service status**:
+```bash
+docker-compose ps
+```
+
+### Docker Configuration
+
+**Backend Dockerfile**:
+- Base: `python:3.11-slim`
+- Installs system dependencies
+- Copies requirements and installs packages
+- Exposes port 8000
+- Runs `python api/main.py`
+
+**Frontend Dockerfile**:
+- Base: `node:20-alpine`
+- Multi-stage: Build stage + Production stage
+- Next.js standalone output for optimized size
+- Exposes port 3000
+
+---
+
+## 🧪 Testing
+
+### Manual Testing
+1. Start application (Docker or local)
+2. Create new chat
+3. Upload sample PDF (e.g., research paper)
+4. Ask document-related question
+5. Verify response includes source citations
+6. Test general chat without documents
+7. Create multiple chats and verify isolation
+
+### API Testing
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Upload document
+curl -X POST http://localhost:8000/documents/upload \
+  -F "files=@sample.pdf"
+
+# Query
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Summarize the document", "top_k": 5}'
+```
+
+---
+
+## ⚠️ Known Limitations
 
 ### Cloud Deployment
+- **Render Free Tier**: Insufficient RAM (512MB) for embedding model + dependencies
+  - Embedding model loads on first use (lazy loading implemented)
+  - May still OOM on first document upload
+- **Solution**: Use paid hosting (2GB+ RAM) or switch to API-based embeddings
 
-**Railway / Render / Fly.io**:
-1. Connect GitHub repository
-2. Detect Dockerfile automatically
-3. Set environment variables in dashboard
-4. Deploy with one click
+### Memory & Persistence
+- **Conversation Memory**: In-memory only (resets on server restart)
+- **Documents**: Stored in ChromaDB (persistent across restarts)
+- **File Storage**: Uploaded PDFs saved to `./data` directory
 
-**AWS ECS / Google Cloud Run**:
+### Feature Gaps
+- No user authentication
+- No document deletion from UI
+- No conversation export
+- No streaming in frontend (API supports it)
+- No rate limiting
+- Analytics endpoint not implemented
+
+### Browser Compatibility
+- Modern browsers only (ES6+ required)
+- Tested on Chrome, Firefox, Safari, Edge
+
+---
+
+## 🔧 Troubleshooting
+
+### Backend Issues
+
+**Port 8000 already in use**:
 ```bash
-# Build and push to registry
-docker build -t your-registry/rag-backend .
-docker push your-registry/rag-backend
+# Find process
+lsof -ti:8000  # macOS/Linux
+netstat -ano | findstr :8000  # Windows
 
-# Deploy using platform CLI
-aws ecs create-service ...  # AWS
-gcloud run deploy ...       # GCP
+# Kill process
+kill -9 <PID>  # macOS/Linux
+taskkill /PID <PID> /F  # Windows
+```
+
+**Module not found errors**:
+```bash
+pip install -r requirements.txt
+```
+
+**ChromaDB errors**:
+```bash
+# Delete and recreate database
+rm -rf database/chroma_db
+# Restart backend - will recreate collection
+```
+
+**CUDA/GPU errors**:
+- Embedding model forces CPU mode (no GPU required)
+- Check [src/embeddings.py](src/embeddings.py#L16-L21) for device setting
+
+### Frontend Issues
+
+**API connection refused**:
+1. Check backend is running: `curl http://localhost:8000/health`
+2. Verify `NEXT_PUBLIC_API_URL` in [frontend/app/page.tsx](frontend/app/page.tsx#L11)
+3. Check CORS settings in [api/main.py](api/main.py#L40-L46)
+
+**Build errors**:
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+**TypeScript errors**:
+```bash
+npm run build  # Check for type errors
+```
+
+### Docker Issues
+
+**Build fails**:
+```bash
+# Clean build
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+**Container exits immediately**:
+```bash
+# Check logs
+docker-compose logs backend
+docker-compose logs frontend
+```
+
+**Port conflicts**:
+```bash
+# Change ports in docker-compose.yml
+# e.g., "3001:3000" for frontend
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## 📊 Performance
 
-### Docker Issues
-- **Port already in use**: Stop local dev servers or change ports in `docker-compose.yml`
-- **Build fails**: Clear Docker cache with `docker-compose build --no-cache`
-- **Volume permissions**: Ensure `data/`, `database/`, `logs/` folders exist
-
-### Backend Won't Start
-- **Check Python version**: Requires Python 3.9+
-- **Verify API key**: Ensure `OPENROUTER_API_KEY` is set in `.env`
-- **Install dependencies**: Run `pip install -r requirements.txt`
-
-### Frontend Build Errors
-- **Clear cache**: Delete `frontend/.next` and `frontend/node_modules`
-- **Reinstall**: Run `npm install` again
-- **Check Node version**: Requires Node.js 18+
-
-### Upload Failures
-- **Check file format**: Only PDF, TXT, DOCX supported
-- **Verify backend**: Ensure `http://localhost:8000` is running
-- **CORS errors**: Backend CORS is configured for `localhost`
-
-### Slow Responses
-- **Enable GPU**: Install CUDA and PyTorch with GPU support
-- **Reduce chunk size**: Lower `CHUNK_SIZE` in `.env`
-- **Use fallback model**: Switch to faster model if Nova is slow
-
----
-
-## 🚦 Performance
-
-### Benchmarks (on NVIDIA RTX 3060)
-- **Document Upload**: ~2-3 seconds per PDF page
-- **Query Response**: <500ms (with cached embeddings)
-- **Embedding Generation**: ~100ms per chunk (GPU)
-- **Vector Search**: <50ms for 10k documents
+### Metrics (Local Development)
+- **Query Latency**: 2-5 seconds (OpenRouter API + embedding)
+- **Embedding Speed**: ~50-100 chunks/second (CPU)
+- **ChromaDB Search**: <100ms for 1000 documents
+- **PDF Processing**: ~1-3 seconds per document
+- **Memory Usage**: 
+  - Backend: ~500MB base + ~200MB per embedded model load
+  - Frontend: ~100MB
 
 ### Optimization Tips
-1. **Use GPU**: 10x faster embedding generation
-2. **Adjust chunk size**: Smaller chunks = faster retrieval
-3. **Cache embeddings**: Persistent ChromaDB storage
-4. **Limit top_k**: Fewer chunks = faster LLM processing
+- Use GPU for embeddings (10x+ speedup)
+- Implement caching for frequent queries
+- Use streaming API endpoint for better UX
+- Batch document uploads
+- Increase `top_k` for more context (slower but more accurate)
 
 ---
 
-## 🔒 Security Considerations
+## 🔐 Security Considerations
 
 ### Current Implementation
-- ⚠️ No authentication (localhost only)
-- ⚠️ No rate limiting
-- ⚠️ CORS enabled for all origins
-- ✅ Documents stored locally (not sent to external services)
-- ✅ Local embeddings (privacy-preserving)
+- ⚠️ **No authentication** - Anyone with URL can access
+- ⚠️ **No rate limiting** - Vulnerable to abuse
+- ⚠️ **API key in .env** - Secure on server, but never commit
+- ⚠️ **CORS wildcard** - Development only, restrict in production
+- ⚠️ **No input validation** - FastAPI Pydantic provides basic validation
 
 ### Production Recommendations
-- Implement user authentication (Firebase, Auth0)
-- Add API rate limiting
-- Configure CORS for specific domains
-- Use environment-specific configurations
-- Implement input validation and sanitization
+1. **Add authentication** (JWT, OAuth)
+2. **Implement rate limiting** (per IP/user)
+3. **Restrict CORS** to specific domains
+4. **Validate file uploads** (size limits, type checking)
+5. **Use secrets manager** for API keys (not .env)
+6. **Add HTTPS** (reverse proxy with SSL)
+7. **Sanitize user input** (prevent injection attacks)
+8. **Monitor logs** for suspicious activity
 
 ---
 
-## 📝 License
+## 🗺️ Roadmap
 
-This project is licensed under the MIT License.
+### Planned Features
+- [ ] User authentication (Firebase/Auth0)
+- [ ] Persistent conversation storage (PostgreSQL)
+- [ ] Document deletion from UI
+- [ ] Multiple file format support (DOCX, TXT, Markdown)
+- [ ] Conversation export (JSON, Markdown)
+- [ ] Streaming responses in frontend
+- [ ] Rate limiting & API keys
+- [ ] Admin dashboard
+- [ ] Search within chat history
+- [ ] Document preview in UI
+- [ ] Mobile app (React Native)
+
+### Potential Improvements
+- [ ] Switch to API embeddings for cloud deployment
+- [ ] Implement hybrid search (semantic + keyword)
+- [ ] Add reranking for better retrieval
+- [ ] Support web scraping (URL ingestion)
+- [ ] Multi-language support
+- [ ] Voice input/output
+- [ ] Document comparison feature
+- [ ] Analytics dashboard
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these guidelines:
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Contributions welcome! This is a portfolio project, but improvements are appreciated.
+
+### Development Workflow
+1. Fork repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+### Code Style
+- **Python**: PEP 8, type hints, docstrings
+- **TypeScript**: ESLint, Prettier, strict mode
+- **Commits**: Conventional Commits format
 
 ---
 
-## 📧 Contact
+## 📄 License
 
-For questions or support, please open an issue on GitHub.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **OpenRouter** for LLM API access
-- **Amazon Nova 2 Lite** for reasoning capabilities
-- **SentenceTransformers** for embedding models
-- **ChromaDB** for vector database
-- **Vercel** for Next.js framework
+- **Amazon Nova 2 Lite** - Free reasoning model
+- **OpenRouter** - Unified LLM API
+- **LangChain** - Document processing utilities
+- **ChromaDB** - Vector database
+- **Hugging Face** - SentenceTransformers models
+- **Vercel** - Next.js framework creators
+- **FastAPI** - Modern Python web framework
 
 ---
 
-**Built with ❤️ for intelligent document interaction**
+## 📞 Contact
+
+**Kunal Sewal**
+- GitHub: [@KunalSewal](https://github.com/KunalSewal)
+- Project: [RAG-Chatbot](https://github.com/KunalSewal/RAG-Chatbot)
+
+---
+
+## 🎯 Project Status
+
+**Current Version**: 2.0.0
+**Status**: ✅ Production-ready for local deployment
+**Last Updated**: December 2025
+
+### What Works
+✅ Docker Compose deployment  
+✅ Multi-chat with document isolation  
+✅ PDF upload and processing  
+✅ Semantic search with ChromaDB  
+✅ Amazon Nova 2 Lite reasoning  
+✅ Markdown rendering with syntax highlighting  
+✅ Responsive dark-themed UI  
+
+### What Doesn't (Yet)
+❌ Cloud deployment on free tiers (memory constraints)  
+❌ User authentication  
+❌ Persistent conversation storage  
+❌ Frontend streaming (API supports it)  
+
+---
+
+**Built with ❤️ for demonstrating full-stack RAG capabilities**
