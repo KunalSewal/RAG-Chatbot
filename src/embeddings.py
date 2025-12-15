@@ -12,14 +12,10 @@ class EmbeddingManager:
     """Manages document embeddings and vector storage using local models."""
     
     def __init__(self):
-        # Initialize local embedding model (no API calls, completely free!)
-        logger.info(f"Loading local embedding model: {settings.embedding_model}")
-        model_name = settings.embedding_model.split('/')[-1]  # Extract model name
-        # Force CPU for cloud deployment (no CUDA)
-        import torch
-        device = 'cpu'  # Always use CPU on Render/Railway
-        self.embedding_model = SentenceTransformer(model_name, device=device)
-        logger.info(f"Local embedding model loaded successfully on {device}")
+        # Lazy loading for cloud deployment (save memory on startup)
+        self.embedding_model = None
+        self._model_loaded = False
+        logger.info(f"EmbeddingManager initialized (lazy loading enabled)")
         
         # Initialize ChromaDB
         self.chroma_client = chromadb.PersistentClient(
@@ -40,6 +36,18 @@ class EmbeddingManager:
             metadata={"description": "Document embeddings for RAG chatbot"}
         )
     
+    def _load_model(self):
+        """Lazy load the embedding model only when needed."""
+        if not self._model_loaded:
+            logger.info(f"Loading embedding model: {settings.embedding_model}")
+            model_name = settings.embedding_model.split('/')[-1]
+            # Force CPU for cloud deployment
+            import torch
+            device = 'cpu'
+            self.embedding_model = SentenceTransformer(model_name, device=device)
+            self._model_loaded = True
+            logger.info(f"Embedding model loaded on {device}")
+    
     def create_embedding(self, text: str) -> List[float]:
         """
         Create embedding for a text using local SentenceTransformer model.
@@ -51,6 +59,8 @@ class EmbeddingManager:
             Embedding vector
         """
         try:
+            # Load model on first use (lazy loading)
+            self._load_model()
             # Use local model - completely free, no API calls!
             embedding = self.embedding_model.encode(text, convert_to_tensor=False)
             return embedding.tolist() if hasattr(embedding, 'tolist') else list(embedding)
